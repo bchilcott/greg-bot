@@ -9,14 +9,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import zone.greggle.gregbot.command.GuildReactionListener;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"zone.greggle.gregbot", "zone.greggle.gregbot.*"})
 @EnableMongoRepositories
 public class GregBotApplication {
 
-	private static final Logger logger = LoggerFactory.getLogger(GuildReactionListener.class);
+	private static final Logger logger = LoggerFactory.getLogger(GregBotApplication.class);
 
 	public static void main(String[] args) {
 		SpringApplication.run(GregBotApplication.class, args);

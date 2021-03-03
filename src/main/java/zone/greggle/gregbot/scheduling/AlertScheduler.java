@@ -49,7 +49,7 @@ public class AlertScheduler {
             timer.schedule(new AlertTask(mission.getID(), warningMinutes), alertTime);
             logger.info("Set alert for mission #" + mission.getShortID() + " at " + alertTime.toString());
         } else {
-            logger.error("Specified alert time is  in the past (#" + mission.getShortID() + ")");
+            logger.error("Specified alert time is in the past (#" + mission.getShortID() + ")");
         }
     }
 
