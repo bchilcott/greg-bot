@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.entity.Mission;
 import zone.greggle.gregbot.entity.MissionRepository;
+import zone.greggle.gregbot.scheduling.task.AlertTask;
 
 import java.time.ZoneOffset;
 import java.util.Date;

@@ -19,8 +19,6 @@ public interface MissionRepository extends MongoRepository<Mission, String> {
 
     void deleteByMissionChannelID(long missionChannelID);
 
-    List<Mission> findByPublishedIsFalse();
-
     List<Mission> findByPublishedIsFalseAndEditModeIsNot(EditMode editMode);
 
     List<Mission> findByPublishedIs(boolean isPublished);

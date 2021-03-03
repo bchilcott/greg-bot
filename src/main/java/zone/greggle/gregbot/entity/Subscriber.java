@@ -14,8 +14,5 @@ public class Subscriber {
     public Long getDiscordID() {
         return discordID;
     }
-    public void setDiscordID(Long discordID) {
-        this.discordID = discordID;
-    }
 
 }
