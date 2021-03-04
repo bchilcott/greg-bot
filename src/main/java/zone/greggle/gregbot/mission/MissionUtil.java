@@ -16,6 +16,7 @@ import zone.greggle.gregbot.entity.SubscriberRepository;
 import zone.greggle.gregbot.mission.editor.MissionEditorCreator;
 import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
 import zone.greggle.gregbot.scheduling.AlertScheduler;
+import zone.greggle.gregbot.scheduling.DeleteScheduler;
 
 import java.util.Objects;
 
@@ -44,6 +45,9 @@ public class MissionUtil {
 
     @Autowired
     SubscriberRepository subscriberRepository;
+
+    @Autowired
+    DeleteScheduler deleteScheduler;
 
     public void publishMission(Mission mission) {
         Guild guild = jdaContainer.getGuild();
@@ -82,6 +86,7 @@ public class MissionUtil {
         TextChannel missionChannel = Objects.requireNonNull(guild.getTextChannelById(mission.getMissionChannelID()));
 
         alertScheduler.unregisterAlert(mission);
+        deleteScheduler.unregisterDelete(mission);
         missionRepository.deleteByShortID(mission.getShortID());
         missionChannel.delete().queue();
         logger.info("Deleted " + mission.getName() + " #" + mission.getShortID());
