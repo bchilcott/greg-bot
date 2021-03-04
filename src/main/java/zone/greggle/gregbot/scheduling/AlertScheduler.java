@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.entity.Mission;
 import zone.greggle.gregbot.entity.MissionRepository;
+import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
 import zone.greggle.gregbot.scheduling.task.AlertTask;
 
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -25,9 +27,15 @@ public class AlertScheduler {
     @Autowired
     MissionRepository missionRepository;
 
+    @Autowired
+    MissionEditorUtil missionEditorUtil;
+
+    List<AlertTask> allTasks = new ArrayList<>();
+
     Timer timer = new Timer();
 
     public void registerStoredAlerts() {
+
         List<Mission> publishedMissions = missionRepository.findByPublishedIs(true);
         logger.info("Registering all stored alerts");
         for (Mission mission: publishedMissions) {
@@ -45,13 +53,26 @@ public class AlertScheduler {
             return;
         }
 
+        unregisterAlert(mission);
+
         if (!alertTime.before(new Date())) {
-            timer.schedule(new AlertTask(mission.getID(), warningMinutes), alertTime);
+            AlertTask task = new AlertTask(mission.getID(), warningMinutes);
+            timer.schedule(task, alertTime);
+            allTasks.add(task);
             logger.info("Set alert for mission #" + mission.getShortID() + " at " + alertTime.toString());
         } else {
-            logger.error("Specified alert time is in the past (#" + mission.getShortID() + ")");
+            logger.warn("Specified alert time is in the past (#" + mission.getShortID() + ")");
         }
     }
 
+    public void unregisterAlert(Mission mission) {
+        for (int i = allTasks.size() - 1; i >= 0; i--) {
+            AlertTask existingTask = allTasks.get(i);
+            if (existingTask.getMissionID().equals(mission.getID())) {
+                existingTask.cancel();
+                allTasks.remove(i);
+            }
+        }
+    }
 
 }

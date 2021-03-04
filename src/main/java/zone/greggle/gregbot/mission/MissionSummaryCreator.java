@@ -7,7 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.JDAContainer;
-import zone.greggle.gregbot.entity.*;
+import zone.greggle.gregbot.entity.Mission;
+import zone.greggle.gregbot.entity.MissionMember;
+import zone.greggle.gregbot.entity.MissionRepository;
+import zone.greggle.gregbot.entity.SubscriberRepository;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -37,7 +40,6 @@ public class MissionSummaryCreator {
         Message summary = missionChannel.sendMessage(createSummaryEmbed(mission)).complete();
         addReactions(summary);
         mission.setSummaryMessageID(summary.getIdLong());
-        sendMissionAlerts(mission);
     }
 
     public void updateSummary(Mission mission) {
@@ -91,27 +93,5 @@ public class MissionSummaryCreator {
     private static void addReactions(Message message) {
         message.addReaction("U+2705").queue();
         message.addReaction("U+274c").queue();
-    }
-
-    private void sendMissionAlerts(Mission mission) {
-        logger.info("Sending mission alert to subscribers");
-        for (Subscriber subscriber : subscriberRepository.findAll()) {
-            if (subscriber.getDiscordID().equals(mission.getHostID())) return;
-            jdaContainer.getGuild().retrieveMemberById(subscriber.getDiscordID()).queue(subMember -> {
-                if (subMember == null) {
-                    subscriberRepository.deleteByDiscordID(subscriber.getDiscordID());
-                } else {
-                    subMember.getUser().openPrivateChannel().queue(dm -> {
-                        jdaContainer.getJDA().retrieveUserById(mission.getHostID()).queue(host -> {
-                            dm.sendMessage(String.format(
-                                    "A new mission was published by %s: %s.",
-                                    host.getName(),
-                                    mission.getName()
-                            )).queue();
-                        });
-                    });
-                }
-            });
-        }
     }
 }

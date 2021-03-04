@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.JDAContainer;
+import zone.greggle.gregbot.data.EditMode;
 import zone.greggle.gregbot.entity.Mission;
 import zone.greggle.gregbot.entity.MissionRepository;
 
@@ -47,14 +48,18 @@ public class MissionEditorCreator {
                 .addPermissionOverride(guild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL))
                 .addPermissionOverride(Objects.requireNonNull(guild.getRoleById(creatorRole)), EnumSet.of(Permission.VIEW_CHANNEL), null)
                 .complete();
+        sendEditorMessage(mission, missionChannel);
+    }
 
-        missionChannel.sendMessage(createEditorEmbed(mission)).queue(m -> {
-            addReactions(m);
-            mission.setEditorMessageID(m.getIdLong());
-            mission.setMissionChannelID(m.getTextChannel().getIdLong());
-            missionRepository.save(mission);
-            logger.debug("Mission editor created");
-        });
+    public void sendEditorMessage(Mission mission, TextChannel missionChannel) {
+        Message editor = missionChannel.sendMessage(createEditorEmbed(mission)).complete();
+        addReactions(editor);
+        mission.setEditorMessageID(editor.getIdLong());
+        mission.setMissionChannelID(editor.getTextChannel().getIdLong());
+        mission.setPublished(false);
+        mission.setEditMode(EditMode.NONE);
+        missionRepository.save(mission);
+        logger.debug("Mission editor created");
     }
 
     private MessageEmbed createEditorEmbed(Mission mission) {

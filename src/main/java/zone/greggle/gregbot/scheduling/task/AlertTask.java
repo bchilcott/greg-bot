@@ -19,9 +19,9 @@ public class AlertTask extends TimerTask {
 
     MissionRepository missionRepository;
 
-    String missionID;
+    final String missionID;
 
-    int warningMinutes;
+    private final int warningMinutes;
 
     public AlertTask(String missionID, int warningMinutes) {
         this.jdaContainer = BeanUtil.getBean(JDAContainer.class);
@@ -46,5 +46,9 @@ public class AlertTask extends TimerTask {
         } else {
             logger.error("Attempted to send alerts for deleted mission");
         }
+    }
+
+    public String getMissionID() {
+        return missionID;
     }
 }

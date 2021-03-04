@@ -28,6 +28,7 @@ public class Mission {
     public Long lastPromptID;
     public Boolean published;
     public EditMode editMode;
+    public Boolean previouslyPublished;
 
     public Mission(Long hostID) {
 
@@ -136,6 +137,7 @@ public class Mission {
     }
     public void setPublished(Boolean published) {
         this.published = published;
+        this.previouslyPublished = true;
     }
 
     public EditMode getEditMode() {
@@ -143,6 +145,10 @@ public class Mission {
     }
     public void setEditMode(EditMode editMode) {
         this.editMode = editMode;
+    }
+
+    public Boolean wasPreviouslyPublished() {
+        return previouslyPublished;
     }
 
     public MissionMember getMemberByID(Long discordID) {
