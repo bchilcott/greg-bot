@@ -71,6 +71,7 @@ public class AlertScheduler {
             if (existingTask.getMissionID().equals(mission.getID())) {
                 existingTask.cancel();
                 allTasks.remove(i);
+                return;
             }
         }
     }
