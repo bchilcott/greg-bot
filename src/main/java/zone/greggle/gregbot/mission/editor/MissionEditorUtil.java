@@ -1,7 +1,6 @@
 package zone.greggle.gregbot.mission.editor;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
@@ -12,8 +11,7 @@ import zone.greggle.gregbot.JDAContainer;
 import zone.greggle.gregbot.data.EditMode;
 import zone.greggle.gregbot.entity.Mission;
 import zone.greggle.gregbot.entity.MissionRepository;
-import zone.greggle.gregbot.mission.MissionSummaryCreator;
-import zone.greggle.gregbot.scheduling.AlertScheduler;
+import zone.greggle.gregbot.mission.MissionUtil;
 
 import java.awt.*;
 import java.util.Objects;
@@ -31,10 +29,7 @@ public class MissionEditorUtil {
     private MissionRepository missionRepository;
 
     @Autowired
-    MissionSummaryCreator missionSummaryCreator;
-
-    @Autowired
-    AlertScheduler alertScheduler;
+    MissionUtil missionUtil;
 
     public void handleReaction(String reactionCode, Mission mission) {
         Guild guild = jdaContainer.getGuild();
@@ -45,7 +40,7 @@ public class MissionEditorUtil {
         logger.debug("Handling reaction code " + reactionCode);
 
         if (!reactionCode.equals("U+274c") && !reactionCode.equals("U+2705")) {
-            if (mission.getEditMode() != EditMode.NONE) resetEditMode(mission);
+            if (mission.getEditMode() != EditMode.NONE) missionUtil.resetEditMode(mission);
         }
 
         switch (reactionCode) {
@@ -70,31 +65,18 @@ public class MissionEditorUtil {
             case "U+1f4d6": // Summary
                 mission.setEditMode(EditMode.SUMMARY);
                 sendEditPrompt(":book:  Edit Mission Summary", "Type a new short summary for the mission." +
-                        "More details can be sent to this channel once the mission is published:",
+                                "More details can be sent to this channel once the mission is published:",
                         mission);
                 break;
 
             case "U+274c": // Cancel
-                missionChannel.delete().queue();
-                missionRepository.deleteByShortID(mission.getShortID());
-                logger.info("Deleted " + mission.getName() + " #" + mission.getShortID());
+                missionUtil.deleteMission(mission);
                 deleted = true;
                 break;
 
             case "U+2705": // Publish
                 try {
-                    missionChannel.retrieveMessageById(mission.getEditorMessageID()).queue(m -> m.delete().queue());
-                    if (mission.getLastPromptID() != null && mission.getEditMode() != EditMode.NONE) { // If prompt is open
-                        missionChannel.retrieveMessageById(mission.getLastPromptID()).queue(m -> m.delete().queue());
-                    }
-                    missionChannel.putPermissionOverride(guild.getPublicRole()).setAllow(Permission.VIEW_CHANNEL).queue();
-                    missionSummaryCreator.sendSummary(mission);
-                    alertScheduler.registerNewAlert(mission);
-
-                    mission.setEditMode(EditMode.NONE);
-                    mission.setPublished(true);
-                    logger.info("Published " + mission.getName() + " #" + mission.getShortID());
-
+                    missionUtil.publishMission(mission);
                 } catch (Exception e) {
                     sendErrorMessage("Error Publishing Mission",
                             "```" + e.getMessage() + "```", missionChannel);
@@ -105,17 +87,8 @@ public class MissionEditorUtil {
 
         if (!deleted) {
             missionRepository.save(mission);
-            logger.debug(String.format("Edit mode set to %s on mission #%s", mission.getEditMode().name(),  mission.getShortID()));
+            logger.debug(String.format("Edit mode set to %s on mission #%s", mission.getEditMode().name(), mission.getShortID()));
         }
-    }
-
-    public void resetEditMode(Mission mission) {
-        mission.setEditMode(EditMode.NONE);
-        missionRepository.save(mission);
-        Objects.requireNonNull(jdaContainer.getGuild().getTextChannelById(mission.getMissionChannelID()))
-            .retrieveMessageById(mission.getLastPromptID()).queue(m -> {
-                m.delete().queue();
-            });
     }
 
     private void sendEditPrompt(String heading, String prompt, Mission mission) {

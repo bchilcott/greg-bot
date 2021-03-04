@@ -12,6 +12,7 @@ import zone.greggle.gregbot.data.EditMode;
 import zone.greggle.gregbot.entity.Mission;
 import zone.greggle.gregbot.entity.MissionRepository;
 import zone.greggle.gregbot.mission.MissionManagerUtil;
+import zone.greggle.gregbot.mission.MissionUtil;
 import zone.greggle.gregbot.mission.editor.MissionEditorCreator;
 import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
 
@@ -44,6 +45,9 @@ public class GuildCommandListener extends ListenerAdapter {
     @Autowired
     private MissionEditorUtil missionEditorUtil;
 
+    @Autowired
+    private MissionUtil missionUtil;
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
@@ -53,20 +57,31 @@ public class GuildCommandListener extends ListenerAdapter {
         if (messageArgs[0].equalsIgnoreCase("!delete")) {
             TextChannel channel = event.getTextChannel();
             Mission mission = missionRepository.findByMissionChannelID(channel.getIdLong());
-
-
-            if (mission != null) {
-                if (event.getAuthor().getIdLong() != mission.getHostID()) {
-                    missionEditorUtil.sendErrorMessage("Invalid Permissions",
-                            "You need to be the mission creator to do that!",
-                            channel);
-                    return;
-                }
-            } else {
-                logger.error("Attempted to delete mission that doesn't exist");
+            if (event.getAuthor().getIdLong() != mission.getHostID()) {
+                missionEditorUtil.sendErrorMessage("Invalid Permissions",
+                        "You need to be the mission creator to do that!",
+                        channel);
+                return;
             }
-            missionRepository.deleteByMissionChannelID(channel.getIdLong());
-            event.getTextChannel().delete().queue();
+            missionUtil.deleteMission(mission);
+        }
+
+        if (messageArgs[0].equalsIgnoreCase("!edit")) {
+            event.getMessage().delete().queue();
+
+            TextChannel channel = event.getTextChannel();
+            Mission mission = missionRepository.findByMissionChannelID(channel.getIdLong());
+
+            if (!mission.isPublished()) return;
+
+            if (event.getAuthor().getIdLong() != mission.getHostID()) {
+                missionEditorUtil.sendErrorMessage("Invalid Permissions",
+                        "You need to be the mission creator to do that!",
+                        channel);
+                return;
+            }
+
+            missionUtil.editMission(mission);
         }
 
         if (setupRequired && messageArgs[0].equalsIgnoreCase("!setup")) {
@@ -114,7 +129,7 @@ public class GuildCommandListener extends ListenerAdapter {
 
                 event.getMessage().delete().queue();
                 if (success) {
-                    missionEditorUtil.resetEditMode(mission);
+                    missionUtil.resetEditMode(mission);
                     missionEditorCreator.updateEditorMessage(mission);
                 };
             }

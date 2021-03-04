@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.JDAContainer;
 import zone.greggle.gregbot.entity.*;
 import zone.greggle.gregbot.mission.MissionSummaryCreator;
+import zone.greggle.gregbot.mission.MissionUtil;
 import zone.greggle.gregbot.mission.editor.MissionEditorCreator;
 import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
 
@@ -34,6 +35,9 @@ public class GuildReactionListener extends ListenerAdapter {
     String missionCreatorRoleID;
 
     @Autowired
+    JDAContainer jdaContainer;
+
+    @Autowired
     MissionRepository missionRepository;
 
     @Autowired
@@ -49,7 +53,7 @@ public class GuildReactionListener extends ListenerAdapter {
     MissionSummaryCreator missionSummaryCreator;
 
     @Autowired
-    JDAContainer jdaContainer;
+    MissionUtil missionUtil;
 
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
@@ -74,7 +78,7 @@ public class GuildReactionListener extends ListenerAdapter {
                 if (handleEditorReaction(event, mission)) return;
             } else if (event.getReaction().getReactionEmote().getAsCodepoints().equals("U+274c") &&
                     event.getTextChannel().getIdLong() == mission.getMissionChannelID()) {
-                missionEditorUtil.resetEditMode(mission);
+                missionUtil.resetEditMode(mission);
                 return;
             }
         }
