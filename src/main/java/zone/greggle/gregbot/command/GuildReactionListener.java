@@ -16,6 +16,7 @@ import zone.greggle.gregbot.mission.MissionSummaryCreator;
 import zone.greggle.gregbot.mission.MissionUtil;
 import zone.greggle.gregbot.mission.editor.MissionEditorCreator;
 import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
+import zone.greggle.gregbot.scheduling.DeleteScheduler;
 
 import java.util.List;
 import java.util.Objects;
@@ -54,6 +55,9 @@ public class GuildReactionListener extends ListenerAdapter {
 
     @Autowired
     MissionUtil missionUtil;
+
+    @Autowired
+    DeleteScheduler deleteScheduler;
 
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
@@ -105,7 +109,9 @@ public class GuildReactionListener extends ListenerAdapter {
                 if (Objects.requireNonNull(event.getMember()).getRoles().contains(creatorRole)) {
                     Mission mission = new Mission(event.getUser().getIdLong());
                     missionRepository.save(mission);
+                    deleteScheduler.scheduleDelete(mission);
                     missionEditorCreator.createMissionEditor(mission);
+
                     logger.info(String.format("%s created mission #%s", event.getUser().getName(), mission.getShortID()));
                 } else {
                     missionEditorUtil.sendErrorMessage("Invalid Permissions",
