@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.command.GuildCommandListener;
 import zone.greggle.gregbot.command.GuildReactionListener;
+import zone.greggle.gregbot.mission.MissionManagerUtil;
 import zone.greggle.gregbot.scheduling.AlertScheduler;
 import zone.greggle.gregbot.scheduling.DeleteScheduler;
 
@@ -35,14 +36,19 @@ public class GregBot {
     @Autowired
     DeleteScheduler deleteScheduler;
 
+    @Autowired
+    MissionManagerUtil missionManagerUtil;
+
     public void startBot() {
         try {
             JDA jda = JDABuilder.createLight(SECRET_TOKEN)
                     .addEventListeners(guildCommandListener)
                     .addEventListeners(guildReactionListener)
-                    .build();
+                    .build()
+                    .awaitReady();
             jdaContainer.setJDA(jda);
             logger.info("Connected to discord as " + jdaContainer.getJDA().getSelfUser().getName());
+            missionManagerUtil.updateManagerMessage(jdaContainer.getGuild());
             alertScheduler.registerStoredAlerts();
             deleteScheduler.registerExistingDeletes();
         } catch (Exception e) {
