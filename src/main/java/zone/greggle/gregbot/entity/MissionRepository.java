@@ -24,6 +24,6 @@ public interface MissionRepository extends MongoRepository<Mission, String> {
 
     List<Mission> findByPublishedIs(boolean isPublished);
 
-    @Query(value = "{ 'members.discordID': { $lte: NumberLong('?0') } }")
-    List<Mission> findMissionsByMemberDiscordID(long discordID);
+    @Query(value = "{ 'members.discordID': ?0 }")
+    List<Mission> findMissionsByMemberDiscordID(Long discordID);
 }

@@ -194,8 +194,13 @@ public class GuildReactionListener extends ListenerAdapter {
                 break;
 
             case "U+2694": // Crossed Swords - Select Role
-                mission.updateMemberRole(event.getUserIdLong(), "Bloke");
-                missionRepository.save(mission);
+                for (Mission missionToCheck : missionRepository.findMissionsByMemberDiscordID(event.getUserIdLong())) {
+                    if (missionToCheck.getMemberByID(event.getUserIdLong()).isSelectingRole()) {
+                        missionToCheck.setSelectingRole(event.getUserIdLong(), false);
+                        missionRepository.save(missionToCheck);
+                    }
+                }
+                missionSummaryUtil.createRoleSelector(mission, event.getMember());
         }
     }
 

@@ -175,6 +175,18 @@ public class Mission {
             if (m.getDiscordID().equals(discordID)) {
                 MissionMember memberToUpdate = getMemberByID(discordID);
                 memberToUpdate.setMissionRole(role);
+                memberToUpdate.setSelectingRole(false);
+                members.set(members.indexOf(m), memberToUpdate);
+                return;
+            }
+        }
+    }
+
+    public void setSelectingRole(Long discordID, boolean selectingRole) {
+        for (MissionMember m : members) {
+            if (m.getDiscordID().equals(discordID)) {
+                MissionMember memberToUpdate = getMemberByID(discordID);
+                memberToUpdate.setSelectingRole(selectingRole);
                 members.set(members.indexOf(m), memberToUpdate);
                 return;
             }

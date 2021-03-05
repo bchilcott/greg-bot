@@ -64,8 +64,23 @@ public class MissionSummaryUtil {
                 registeredMember = member;
             }
         }
-        if (registeredMember == null) {
+        if (registeredMember != null) {
+            applicant.getUser().openPrivateChannel().queue(dm -> {
+                EmbedBuilder eb = new EmbedBuilder();
+                StringBuilder descBuilder = new StringBuilder();
+                descBuilder.append("Type the name of a role from the list below:");
+                descBuilder.append("```");
+                descBuilder.append(missionUtil.buildRolesString(mission));
+                descBuilder.append("```");
 
+                eb.setTitle("Role Selection - " + mission.getName());
+                eb.setDescription(descBuilder.toString());
+                eb.setFooter("GREG Bot by Scythern#5601");
+                dm.sendMessage(eb.build()).queue(message -> {
+                        mission.setSelectingRole(applicant.getIdLong(), true);
+                        missionRepository.save(mission);
+                });
+            });
         }
     }
 
@@ -80,8 +95,9 @@ public class MissionSummaryUtil {
             for (MissionMember missionMember : members) {
                 Member member  = guild.retrieveMemberById(missionMember.getDiscordID()).complete();
                 if (member != null) {
-                    mList.append("\n - ");
-                    mList.append(member.getUser().getName());
+                    mList.append("\n - ").append(member.getUser().getName());
+                    if (!missionMember.getMissionRole().equals("Not Selected"))
+                        mList.append(String.format(" (%s)", missionMember.getMissionRole()));
                 } else {
                     members.remove(missionMember);
                 }
