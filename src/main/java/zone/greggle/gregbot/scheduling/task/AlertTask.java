@@ -36,6 +36,7 @@ public class AlertTask extends TimerTask {
         Mission mission = missionRepository.findMissionById(missionID);
 
         if (mission != null) {
+            logger.debug("Running scheduled auto-delete");
             for (MissionMember missionMember: mission.getMembers()) {
                 guild.retrieveMemberById(missionMember.getDiscordID()).queue(guildMember -> {
                     guildMember.getUser().openPrivateChannel().queue(dm -> {

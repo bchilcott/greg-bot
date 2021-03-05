@@ -61,9 +61,9 @@ public class GuildCommandListener extends ListenerAdapter {
         if (messageArgs[0].equalsIgnoreCase("!delete")) {
             TextChannel channel = event.getChannel();
             Mission mission = missionRepository.findByMissionChannelID(channel.getIdLong());
-            if (!Objects.requireNonNull(event.getMember()).getRoles().contains(event.getGuild().getRoleById(missionCreatorRoleID))) {
+            if (event.getAuthor().getIdLong() != mission.getHostID()) {
                 missionEditorUtil.sendErrorMessage("Invalid Permissions",
-                        "You need the Mission Creator role to do this!",
+                        "You need to be the mission author to do this!",
                         channel);
                 return;
             }
@@ -73,11 +73,11 @@ public class GuildCommandListener extends ListenerAdapter {
         if (messageArgs[0].equalsIgnoreCase("!edit")) {
             TextChannel channel = event.getChannel();
             Mission mission = missionRepository.findByMissionChannelID(channel.getIdLong());
-            event.getMessage().delete().queue();
 
-            if (event.getAuthor().getIdLong() != mission.getHostID()) {
+            if (!Objects.requireNonNull(event.getMember()).getRoles().contains(event.getGuild().getRoleById(missionCreatorRoleID))) {
+                event.getMessage().delete().queue();
                 missionEditorUtil.sendErrorMessage("Invalid Permissions",
-                        "You need to be the mission author to do this!",
+                        "You need the Mission Creator role to do this!",
                         channel);
                 return;
             }

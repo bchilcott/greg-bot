@@ -48,6 +48,7 @@ public class Mission {
         this.lastPromptID = null;
         this.published = false;
         this.editMode = EditMode.NONE;
+        this.previouslyPublished = false;
 
         this.addMember(new MissionMember(hostID));
     }

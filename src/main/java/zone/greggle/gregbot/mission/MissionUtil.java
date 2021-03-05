@@ -66,9 +66,9 @@ public class MissionUtil {
         deleteScheduler.scheduleDelete(mission);
 
         mission.setEditMode(EditMode.NONE);
-        mission.setPublished(true);
-
         if (!mission.wasPreviouslyPublished()) sendPublishAlerts(mission);
+
+        mission.setPublished(true);
         logger.info("Published " + mission.getName() + " #" + mission.getShortID());
     }
 
@@ -119,9 +119,8 @@ public class MissionUtil {
     }
 
     private void sendPublishAlerts(Mission mission) {
-        logger.info("Sending mission alert to subscribers");
         for (Subscriber subscriber : subscriberRepository.findAll()) {
-            if (subscriber.getDiscordID().equals(mission.getHostID())) return;
+//            if (subscriber.getDiscordID().equals(mission.getHostID())) return;
             jdaContainer.getGuild().retrieveMemberById(subscriber.getDiscordID()).queue(subMember -> {
                 if (subMember == null) {
                     subscriberRepository.deleteByDiscordID(subscriber.getDiscordID());
@@ -133,6 +132,7 @@ public class MissionUtil {
                                     host.getName(),
                                     mission.getName()
                             )).queue();
+                            logger.debug("Sending mission alert to " + subMember.getUser().getName());
                         });
                     });
                 }

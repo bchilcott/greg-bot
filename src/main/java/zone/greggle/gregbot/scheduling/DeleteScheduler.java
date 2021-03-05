@@ -55,7 +55,7 @@ public class DeleteScheduler {
             DeleteTask task = new DeleteTask(mission.getID());
             timer.schedule(task, deleteTime);
             allTasks.add(task);
-            logger.info("Set delete time for mission #" + mission.getShortID() + " to " + deleteTime.toString());
+            logger.debug("Set delete time for mission #" + mission.getShortID() + " to " + deleteTime.toString());
         } else {
             logger.warn("Specified delete time is in the past (#" + mission.getShortID() + ")");
         }

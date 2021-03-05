@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.JDAContainer;
-import zone.greggle.gregbot.data.EditMode;
 import zone.greggle.gregbot.entity.Mission;
 import zone.greggle.gregbot.entity.MissionRepository;
 import zone.greggle.gregbot.mission.MissionUtil;
@@ -60,8 +59,6 @@ public class MissionEditorCreator {
         addReactions(editor);
         mission.setEditorMessageID(editor.getIdLong());
         mission.setMissionChannelID(editor.getTextChannel().getIdLong());
-        mission.setPublished(false);
-        mission.setEditMode(EditMode.NONE);
         missionRepository.save(mission);
         logger.debug("Mission editor created");
     }
@@ -91,12 +88,12 @@ public class MissionEditorCreator {
                 "\n:book: Summary" +
                 "\n:crossed_swords: Roles";
 
-        String publishFields = ":x: Cancel" +
+        String publishFields = ":x: Delete" +
                 "\n :white_check_mark: Publish";
 
         eb.setDescription(description);
         eb.addField("Edit", editFields, true);
-        eb.addField("Create", publishFields, true);
+        eb.addField("Mission", publishFields, true);
         eb.setFooter("GREG Bot by @Scythern#5601");
 
         return eb.build();
