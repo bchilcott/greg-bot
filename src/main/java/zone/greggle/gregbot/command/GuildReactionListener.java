@@ -79,14 +79,24 @@ public class GuildReactionListener extends ListenerAdapter {
 //        Reactions on a Mission Editor
         List<Mission> unpublishedMissions = missionRepository.findByPublishedIs(false);
         for (Mission mission : unpublishedMissions) {
+
+
             if (event.getMessageIdLong() ==  mission.getEditorMessageID()) {
-                if (handleEditorReaction(event, mission)) return;
+                if(Objects.requireNonNull(event.getMember()).getRoles().contains(event.getGuild().getRoleById(missionCreatorRoleID))) {
+                    missionEditorUtil.handleReaction(event.getReactionEmote().getAsCodepoints(), mission);
+                } else {
+                    missionEditorUtil.sendErrorMessage("Invalid Permissions",
+                            "You need the Mission Creator role to do this!",
+                            event.getTextChannel());
+                }
+                return;
             } else if (event.getReaction().getReactionEmote().getAsCodepoints().equals("U+274c") &&
                     event.getTextChannel().getIdLong() == mission.getMissionChannelID()) {
                 missionUtil.resetEditMode(mission);
                 return;
             }
 
+//            Reactions on Role Editor
             if (mission.getEditMode() == EditMode.ROLES && event.getMessageIdLong() == mission.getLastPromptID()) {
                 switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
                     case "U+2b05":
@@ -156,16 +166,6 @@ public class GuildReactionListener extends ListenerAdapter {
                 }
                 break;
         }
-    }
-
-    private boolean handleEditorReaction(MessageReactionAddEvent event, Mission mission) {
-
-        if(!Objects.requireNonNull(event.getMember()).getRoles()
-                .contains(event.getGuild().getRoleById(missionCreatorRoleID)))
-            return false;
-
-        missionEditorUtil.handleReaction(event.getReactionEmote().getAsCodepoints(), mission);
-        return true;
     }
 
     private void handleSummaryReaction(MessageReactionAddEvent event, Mission mission) {

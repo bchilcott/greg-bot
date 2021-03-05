@@ -128,6 +128,6 @@ public class MissionEditorUtil {
 
     public void sendErrorMessage(String heading, String message, TextChannel channel) {
         EmbedBuilder eb = new EmbedBuilder().setTitle("Error: " + heading).setDescription(message).setColor(Color.RED);
-        channel.sendMessage(eb.build()).queue(m -> m.delete().queueAfter(15, TimeUnit.SECONDS));
+        channel.sendMessage(eb.build()).queue(m -> m.delete().queueAfter(5, TimeUnit.SECONDS));
     }
 }

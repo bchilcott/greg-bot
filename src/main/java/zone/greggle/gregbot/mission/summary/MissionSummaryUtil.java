@@ -79,6 +79,7 @@ public class MissionSummaryUtil {
                 dm.sendMessage(eb.build()).queue(message -> {
                         mission.setSelectingRole(applicant.getIdLong(), true);
                         missionRepository.save(mission);
+                        logger.info("Sent role selector to " + applicant.getUser().getName());
                 });
             });
         }

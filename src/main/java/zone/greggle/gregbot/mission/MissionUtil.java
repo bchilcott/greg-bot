@@ -63,6 +63,7 @@ public class MissionUtil {
         missionChannel.putPermissionOverride(guild.getPublicRole()).setAllow(Permission.VIEW_CHANNEL).queue();
         missionSummaryUtil.sendSummary(mission);
         alertScheduler.registerNewAlert(mission);
+        deleteScheduler.scheduleDelete(mission);
 
         mission.setEditMode(EditMode.NONE);
         mission.setPublished(true);
@@ -101,6 +102,7 @@ public class MissionUtil {
         missionChannel.retrieveMessageById(mission.getSummaryMessageID()).queue(m -> m.delete().queue());
         missionEditorCreator.sendEditorMessage(mission, missionChannel);
         missionEditorCreator.updateEditorMessage(mission);
+        logger.info("Editing " + mission.getName() + " #" + mission.getShortID());
     }
 
     public String buildRolesString(Mission mission) {
