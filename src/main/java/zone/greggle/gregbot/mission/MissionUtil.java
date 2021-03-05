@@ -15,6 +15,7 @@ import zone.greggle.gregbot.entity.Subscriber;
 import zone.greggle.gregbot.entity.SubscriberRepository;
 import zone.greggle.gregbot.mission.editor.MissionEditorCreator;
 import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
+import zone.greggle.gregbot.mission.summary.MissionSummaryUtil;
 import zone.greggle.gregbot.scheduling.AlertScheduler;
 import zone.greggle.gregbot.scheduling.DeleteScheduler;
 
@@ -29,7 +30,7 @@ public class MissionUtil {
     JDAContainer jdaContainer;
 
     @Autowired
-    MissionSummaryCreator missionSummaryCreator;
+    MissionSummaryUtil missionSummaryUtil;
 
     @Autowired
     AlertScheduler alertScheduler;
@@ -60,7 +61,7 @@ public class MissionUtil {
             missionChannel.retrieveMessageById(mission.getLastPromptID()).queue(m -> m.delete().queue());
         }
         missionChannel.putPermissionOverride(guild.getPublicRole()).setAllow(Permission.VIEW_CHANNEL).queue();
-        missionSummaryCreator.sendSummary(mission);
+        missionSummaryUtil.sendSummary(mission);
         alertScheduler.registerNewAlert(mission);
 
         mission.setEditMode(EditMode.NONE);
@@ -100,6 +101,19 @@ public class MissionUtil {
         missionChannel.retrieveMessageById(mission.getSummaryMessageID()).queue(m -> m.delete().queue());
         missionEditorCreator.sendEditorMessage(mission, missionChannel);
         missionEditorCreator.updateEditorMessage(mission);
+    }
+
+    public String buildRolesString(Mission mission) {
+        String roles = "";
+        if (mission.getAvailableRoles().size() > 0) {
+            StringBuilder roleListBuilder = new StringBuilder();
+            roleListBuilder.append("\n\nAvailable Roles:");
+            for (String role : mission.getAvailableRoles()) {
+                roleListBuilder.append("\n - ").append(role);
+            }
+            roles = roleListBuilder.toString();
+        }
+        return roles;
     }
 
     private void sendPublishAlerts(Mission mission) {

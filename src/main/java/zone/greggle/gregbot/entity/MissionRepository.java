@@ -1,6 +1,7 @@
 package zone.greggle.gregbot.entity;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 import zone.greggle.gregbot.data.EditMode;
 
@@ -22,4 +23,7 @@ public interface MissionRepository extends MongoRepository<Mission, String> {
     List<Mission> findByPublishedIsFalseAndEditModeIsNot(EditMode editMode);
 
     List<Mission> findByPublishedIs(boolean isPublished);
+
+    @Query(value = "{ 'members.discordID': { $lte: NumberLong('?0') } }")
+    List<Mission> findMissionsByMemberDiscordID(long discordID);
 }

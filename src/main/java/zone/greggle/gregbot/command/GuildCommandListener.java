@@ -67,8 +67,6 @@ public class GuildCommandListener extends ListenerAdapter {
         }
 
         if (messageArgs[0].equalsIgnoreCase("!edit")) {
-            event.getMessage().delete().queue();
-
             TextChannel channel = event.getTextChannel();
             Mission mission = missionRepository.findByMissionChannelID(channel.getIdLong());
 
@@ -125,10 +123,14 @@ public class GuildCommandListener extends ListenerAdapter {
                             success = false;
                         }
                         break;
+                    case ROLES:
+                        mission.addRole(event.getMessage().getContentRaw());
+                        missionRepository.save(mission);
+                        missionEditorCreator.updateEditorMessage(mission);
                 }
 
                 event.getMessage().delete().queue();
-                if (success) {
+                if (success && mission.getEditMode() != EditMode.ROLES) {
                     missionUtil.resetEditMode(mission);
                     missionEditorCreator.updateEditorMessage(mission);
                 };
