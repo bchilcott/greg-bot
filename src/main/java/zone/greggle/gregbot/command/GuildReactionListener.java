@@ -11,11 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.JDAContainer;
+import zone.greggle.gregbot.data.EditMode;
 import zone.greggle.gregbot.entity.*;
-import zone.greggle.gregbot.mission.MissionSummaryCreator;
 import zone.greggle.gregbot.mission.MissionUtil;
 import zone.greggle.gregbot.mission.editor.MissionEditorCreator;
 import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
+import zone.greggle.gregbot.mission.summary.MissionSummaryUtil;
 import zone.greggle.gregbot.scheduling.DeleteScheduler;
 
 import java.util.List;
@@ -51,7 +52,7 @@ public class GuildReactionListener extends ListenerAdapter {
     MissionEditorUtil missionEditorUtil;
 
     @Autowired
-    MissionSummaryCreator missionSummaryCreator;
+    MissionSummaryUtil missionSummaryUtil;
 
     @Autowired
     MissionUtil missionUtil;
@@ -83,6 +84,21 @@ public class GuildReactionListener extends ListenerAdapter {
             } else if (event.getReaction().getReactionEmote().getAsCodepoints().equals("U+274c") &&
                     event.getTextChannel().getIdLong() == mission.getMissionChannelID()) {
                 missionUtil.resetEditMode(mission);
+                return;
+            }
+
+            if (mission.getEditMode() == EditMode.ROLES && event.getMessageIdLong() == mission.getLastPromptID()) {
+                switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
+                    case "U+2b05":
+                        if (mission.getAvailableRoles().size() > 0) mission.removeLastRole();
+                        missionRepository.save(mission);
+                        missionEditorCreator.updateEditorMessage(mission);
+                        break;
+
+                    case "U+2705":
+                        missionUtil.resetEditMode(mission);
+                        break;
+                }
                 return;
             }
         }
@@ -164,23 +180,27 @@ public class GuildReactionListener extends ListenerAdapter {
                 }
                 mission.addMember(new MissionMember(event.getUserIdLong()));
                 missionRepository.save(mission);
-                missionSummaryCreator.updateSummary(mission);
+                missionSummaryUtil.updateSummary(mission);
                 logger.info(String.format("%s registered for mission #%s",
                         Objects.requireNonNull(event.getUser()).getName(), mission.getShortID()));
                 break;
+
             case "U+274c": // Cross - unregister user
-                List<MissionMember> members = mission.getMembers();
-                MissionMember thisMember = mission.getMemberByID(event.getUserIdLong());
-                if (thisMember == null) return;
-
-                members.remove(thisMember);
-                mission.setMembers(members);
-
+                mission.removeMember(mission.getMemberByID(event.getUserIdLong()));
                 missionRepository.save(mission);
-                missionSummaryCreator.updateSummary(mission);
+                missionSummaryUtil.updateSummary(mission);
                 logger.info(String.format("%s unregistered for mission #%s",
                         Objects.requireNonNull(event.getUser()).getName(), mission.getShortID()));
                 break;
+
+            case "U+2694": // Crossed Swords - Select Role
+                for (Mission missionToCheck : missionRepository.findMissionsByMemberDiscordID(event.getUserIdLong())) {
+                    if (missionToCheck.getMemberByID(event.getUserIdLong()).isSelectingRole()) {
+                        missionToCheck.setSelectingRole(event.getUserIdLong(), false);
+                        missionRepository.save(missionToCheck);
+                    }
+                }
+                missionSummaryUtil.createRoleSelector(mission, event.getMember());
         }
     }
 

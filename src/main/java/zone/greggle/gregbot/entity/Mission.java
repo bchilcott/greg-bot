@@ -19,6 +19,7 @@ public class Mission {
     public String name;
     public String location;
     public String summary;
+    public List<String> availableRoles;
     public LocalDateTime missionDate;
     public LocalDateTime dateCreated;
     public List<MissionMember> members;
@@ -35,8 +36,9 @@ public class Mission {
         this.hostID = hostID;
         this.shortID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
         this.name = "Untitled Mission";
-        this.summary = "This mission has no summary.";
         this.location = "Not Specified";
+        this.summary = "This mission has no summary.";
+        this.availableRoles = new ArrayList<>();
         this.missionDate = LocalDateTime.now().plusHours(1);
         this.dateCreated = LocalDateTime.now();
         this.members = new ArrayList<>();
@@ -83,6 +85,16 @@ public class Mission {
         this.location = location;
     }
 
+    public List<String> getAvailableRoles() {
+        return this.availableRoles;
+    }
+    public void addRole(String role) {
+        availableRoles.add(role);
+    }
+    public void removeLastRole() {
+        availableRoles.remove(availableRoles.size() - 1);
+    }
+
     public LocalDateTime getMissionDate() {
         return missionDate;
     }
@@ -97,11 +109,11 @@ public class Mission {
     public List<MissionMember> getMembers() {
         return members;
     }
-    public void setMembers(List<MissionMember> members) {
-        this.members = members;
-    }
     public void addMember(MissionMember member) {
         members.add(member);
+    }
+    public void removeMember(MissionMember member) {
+        members.remove(member);
     }
 
     public Long getMissionChannelID() {
@@ -156,5 +168,28 @@ public class Mission {
             if (m.getDiscordID().equals(discordID)) return m;
         }
         return null;
+    }
+
+    public void updateMemberRole(Long discordID, String role) {
+        for (MissionMember m : members) {
+            if (m.getDiscordID().equals(discordID)) {
+                MissionMember memberToUpdate = getMemberByID(discordID);
+                memberToUpdate.setMissionRole(role);
+                memberToUpdate.setSelectingRole(false);
+                members.set(members.indexOf(m), memberToUpdate);
+                return;
+            }
+        }
+    }
+
+    public void setSelectingRole(Long discordID, boolean selectingRole) {
+        for (MissionMember m : members) {
+            if (m.getDiscordID().equals(discordID)) {
+                MissionMember memberToUpdate = getMemberByID(discordID);
+                memberToUpdate.setSelectingRole(selectingRole);
+                members.set(members.indexOf(m), memberToUpdate);
+                return;
+            }
+        }
     }
 }

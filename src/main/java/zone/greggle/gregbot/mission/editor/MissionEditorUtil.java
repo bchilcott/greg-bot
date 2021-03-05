@@ -69,6 +69,11 @@ public class MissionEditorUtil {
                         mission);
                 break;
 
+            case "U+2694": // Roles
+                mission.setEditMode(EditMode.ROLES);
+                sendRoleEditPrompt(mission);
+                break;
+
             case "U+274c": // Cancel
                 missionUtil.deleteMission(mission);
                 deleted = true;
@@ -99,6 +104,23 @@ public class MissionEditorUtil {
         EmbedBuilder eb = new EmbedBuilder().setTitle(heading).setDescription(prompt);
         missionChannel.sendMessage(eb.build()).queue(m -> {
             m.addReaction("U+274c").queue();
+            mission.setLastPromptID(m.getIdLong());
+            missionRepository.save(mission);
+        });
+    }
+
+    private void sendRoleEditPrompt(Mission mission) {
+        Guild guild = jdaContainer.getGuild();
+        assert guild != null;
+        TextChannel missionChannel = Objects.requireNonNull(guild.getTextChannelById(mission.getMissionChannelID()));
+
+        EmbedBuilder eb = new EmbedBuilder()
+                .setTitle("Add Roles")
+                .setDescription("Each message you send will be the name of a new role. Use :arrow_left: to" +
+                        " delete the last one on the list");
+        missionChannel.sendMessage(eb.build()).queue(m -> {
+            m.addReaction("U+2B05").queue();
+            m.addReaction("U+2705").queue();
             mission.setLastPromptID(m.getIdLong());
             missionRepository.save(mission);
         });

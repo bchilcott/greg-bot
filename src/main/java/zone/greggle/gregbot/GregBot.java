@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import zone.greggle.gregbot.command.DMMessageListener;
 import zone.greggle.gregbot.command.GuildCommandListener;
 import zone.greggle.gregbot.command.GuildReactionListener;
 import zone.greggle.gregbot.mission.MissionManagerUtil;
@@ -31,6 +32,9 @@ public class GregBot {
     GuildReactionListener guildReactionListener;
 
     @Autowired
+    DMMessageListener dmMessageListener;
+
+    @Autowired
     AlertScheduler alertScheduler;
 
     @Autowired
@@ -44,6 +48,7 @@ public class GregBot {
             JDA jda = JDABuilder.createLight(SECRET_TOKEN)
                     .addEventListeners(guildCommandListener)
                     .addEventListeners(guildReactionListener)
+                    .addEventListeners(dmMessageListener)
                     .build()
                     .awaitReady();
             jdaContainer.setJDA(jda);

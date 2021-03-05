@@ -15,6 +15,7 @@ import zone.greggle.gregbot.JDAContainer;
 import zone.greggle.gregbot.data.EditMode;
 import zone.greggle.gregbot.entity.Mission;
 import zone.greggle.gregbot.entity.MissionRepository;
+import zone.greggle.gregbot.mission.MissionUtil;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -31,6 +32,9 @@ public class MissionEditorCreator {
 
     @Autowired
     JDAContainer jdaContainer;
+
+    @Autowired
+    MissionUtil missionUtil;
 
     @Value("${mission.publish.category}")
     private Long categoryID;
@@ -78,12 +82,14 @@ public class MissionEditorCreator {
                 String.format("\nLocation: %s", mission.getLocation()) +
                 "\n\nMission Summary:" +
                 String.format("\n%s", mission.getSummary()) +
+                missionUtil.buildRolesString(mission) +
                 "```";
 
         String editFields = ":speech_balloon: Mission Name" +
                 "\n:date: Mission Date/Time" +
                 "\n:map: Location" +
-                "\n:book: Summary";
+                "\n:book: Summary" +
+                "\n:crossed_swords: Roles";
 
         String publishFields = ":x: Cancel" +
                 "\n :white_check_mark: Publish";
@@ -108,6 +114,7 @@ public class MissionEditorCreator {
         message.addReaction("U+1f4c6").queue(); // Date
         message.addReaction("U+1f5fa").queue(); // Map
         message.addReaction("U+1f4d6").queue(); // Book (open)
+        message.addReaction("U+2694").queue(); // Crossed Swords
         message.addReaction("U+274c").queue(); // Red Cross
         message.addReaction("U+2705").queue(); // Check Mark
     }

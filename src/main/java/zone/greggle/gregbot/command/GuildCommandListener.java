@@ -1,8 +1,9 @@
 package zone.greggle.gregbot.command;
 
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,13 +50,13 @@ public class GuildCommandListener extends ListenerAdapter {
     private MissionUtil missionUtil;
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
 
         String[] messageArgs = event.getMessage().getContentRaw().split(" ");
 
         if (messageArgs[0].equalsIgnoreCase("!delete")) {
-            TextChannel channel = event.getTextChannel();
+            TextChannel channel = event.getChannel();
             Mission mission = missionRepository.findByMissionChannelID(channel.getIdLong());
             if (event.getAuthor().getIdLong() != mission.getHostID()) {
                 missionEditorUtil.sendErrorMessage("Invalid Permissions",
@@ -67,9 +68,7 @@ public class GuildCommandListener extends ListenerAdapter {
         }
 
         if (messageArgs[0].equalsIgnoreCase("!edit")) {
-            event.getMessage().delete().queue();
-
-            TextChannel channel = event.getTextChannel();
+            TextChannel channel = event.getChannel();
             Mission mission = missionRepository.findByMissionChannelID(channel.getIdLong());
 
             if (!mission.isPublished()) return;
@@ -87,13 +86,13 @@ public class GuildCommandListener extends ListenerAdapter {
         if (setupRequired && messageArgs[0].equalsIgnoreCase("!setup")) {
             this.setupRequired = false;
             event.getMessage().delete().queue();
-            missionManagerUtil.create(event.getGuild(), event.getTextChannel());
+            missionManagerUtil.create(event.getGuild(), event.getChannel());
         }
 
-        if (Objects.requireNonNull(event.getTextChannel().getParent()).getId().equals(missionPublishCategory)) {
+        if (Objects.requireNonNull(event.getChannel().getParent()).getId().equals(missionPublishCategory)) {
             List<Mission> unpublishedMissions = missionRepository.findByPublishedIsFalseAndEditModeIsNot(EditMode.NONE);
             for (Mission mission : unpublishedMissions) {
-                if (mission.getMissionChannelID() != event.getTextChannel().getIdLong()) break;
+                if (mission.getMissionChannelID() != event.getChannel().getIdLong()) break;
                 if (mission.getHostID() != Objects.requireNonNull(event.getMember()).getIdLong()) break;
                 boolean success = true;
 
@@ -101,7 +100,7 @@ public class GuildCommandListener extends ListenerAdapter {
                     case NAME:
                         mission.setName(event.getMessage().getContentRaw());
                         String newChannelName = mission.getName().replace(" ", "-");
-                        event.getTextChannel().getManager().setName(newChannelName).queue();
+                        event.getChannel().getManager().setName(newChannelName).queue();
                         break;
                     case SUMMARY:
                         mission.setSummary(event.getMessage().getContentRaw());
@@ -116,24 +115,27 @@ public class GuildCommandListener extends ListenerAdapter {
 
                             if (newDate.isBefore(LocalDateTime.now())) {
                                 success = false;
-                                missionEditorUtil.sendErrorMessage("Invalid Date", "Please enter a date in the future!", event.getTextChannel());
+                                missionEditorUtil.sendErrorMessage("Invalid Date", "Please enter a date in the future!", event.getChannel());
                             } else {
                                 mission.setMissionDate(newDate);
                             }
                         } catch (DateTimeParseException e) {
-                            missionEditorUtil.sendErrorMessage("Invalid Date", "Please enter a date in the format described above!", event.getTextChannel());
+                            missionEditorUtil.sendErrorMessage("Invalid Date", "Please enter a date in the format described above!", event.getChannel());
                             success = false;
                         }
                         break;
+                    case ROLES:
+                        mission.addRole(event.getMessage().getContentRaw());
+                        missionRepository.save(mission);
+                        missionEditorCreator.updateEditorMessage(mission);
                 }
 
                 event.getMessage().delete().queue();
-                if (success) {
+                if (success && mission.getEditMode() != EditMode.ROLES) {
                     missionUtil.resetEditMode(mission);
                     missionEditorCreator.updateEditorMessage(mission);
                 };
             }
         }
-
     }
 }

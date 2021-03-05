@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.JDAContainer;
 
@@ -26,6 +27,9 @@ public class MissionManagerUtil {
 
     @Value("${mission.manager.channel}")
     String managerChannelID;
+
+    @Autowired
+    BuildProperties buildProperties;
 
     @Autowired
     JDAContainer jdaContainer;
@@ -70,13 +74,14 @@ public class MissionManagerUtil {
         managerBuilder.setTitle("Mission Manager");
         managerBuilder.setColor(Color.ORANGE);
         managerBuilder.setDescription(
-                "Select an option from below:" +
+                "Select one of the options below:" +
                 "```" +
                 "\n📝 - Create a New Mission" +
                 "\n🔔 - Subscribe to Mission Alerts" +
                 "\n🔕 - Unsubscribe from Mission Alerts" +
                 "```"
         );
+        managerBuilder.setFooter("GREG Bot " + buildProperties.getVersion());
 
         return managerBuilder.build();
     }
