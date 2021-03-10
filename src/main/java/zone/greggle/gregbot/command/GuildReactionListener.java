@@ -63,12 +63,15 @@ public class GuildReactionListener extends ListenerAdapter {
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
         Message message = Objects.requireNonNull(event.retrieveMessage().complete());
-        boolean botSentMessage = Objects.requireNonNull(message.getMember()).getUser().isBot();
+        if (message.getMember() == null) {
+            logger.trace("Ignoring reaction on irrelevant message.");
+            return;
+        }
+
+        boolean botSentMessage = message.getMember().getUser().isBot();
 
         if (Objects.requireNonNull(event.getUser()).isBot() || !botSentMessage) return;
         event.getReaction().removeReaction(Objects.requireNonNull(event.getUser())).queue();
-
-        logger.debug("Identifying reaction on message " + event.getMessageId());
 
 //        Reactions on Mission Manager
         if (event.getMessageId().equals(managerMessageID)) {

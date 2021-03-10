@@ -98,10 +98,13 @@ public class MissionUtil {
         Guild guild = jdaContainer.getGuild();
         assert guild != null;
 
+        mission.setPublished(false);
+        missionRepository.save(mission);
+
         TextChannel missionChannel = Objects.requireNonNull(guild.getTextChannelById(mission.getMissionChannelID()));
         missionChannel.retrieveMessageById(mission.getSummaryMessageID()).queue(m -> m.delete().queue());
         missionEditorCreator.sendEditorMessage(mission, missionChannel);
-        missionEditorCreator.updateEditorMessage(mission);
+//        missionEditorCreator.updateEditorMessage(mission);
         logger.info("Editing " + mission.getName() + " #" + mission.getShortID());
     }
 

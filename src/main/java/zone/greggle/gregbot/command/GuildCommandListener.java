@@ -73,9 +73,9 @@ public class GuildCommandListener extends ListenerAdapter {
         if (messageArgs[0].equalsIgnoreCase("!edit")) {
             TextChannel channel = event.getChannel();
             Mission mission = missionRepository.findByMissionChannelID(channel.getIdLong());
+            event.getMessage().delete().queue();
 
             if (!Objects.requireNonNull(event.getMember()).getRoles().contains(event.getGuild().getRoleById(missionCreatorRoleID))) {
-                event.getMessage().delete().queue();
                 missionEditorUtil.sendErrorMessage("Invalid Permissions",
                         "You need the Mission Creator role to do this!",
                         channel);

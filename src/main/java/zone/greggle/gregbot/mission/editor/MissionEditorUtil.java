@@ -37,7 +37,7 @@ public class MissionEditorUtil {
 
         boolean deleted = false;
         TextChannel missionChannel = Objects.requireNonNull(guild.getTextChannelById(mission.getMissionChannelID()));
-        logger.debug("Handling reaction code " + reactionCode);
+        logger.trace("Handling reaction code " + reactionCode);
 
         if (!reactionCode.equals("U+274c") && !reactionCode.equals("U+2705")) {
             if (mission.getEditMode() != EditMode.NONE) missionUtil.resetEditMode(mission);
