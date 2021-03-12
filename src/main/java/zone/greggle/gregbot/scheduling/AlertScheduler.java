@@ -48,7 +48,7 @@ public class AlertScheduler {
         Date alertTime = Date.from(mission.getMissionDate().minusMinutes(warningMinutes)
                 .toInstant(ZoneOffset.UTC));
 
-        if (missionRepository.findByShortID(mission.getShortID()) == null) {
+        if (!missionRepository.findById(mission.getID()).isPresent()) {
             logger.error("Cannot find mission to register alert");
             return;
         }

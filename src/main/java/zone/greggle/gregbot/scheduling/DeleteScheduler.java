@@ -44,7 +44,7 @@ public class DeleteScheduler {
         Date deleteTime = Date.from(mission.getMissionDate().plusHours(8)
                 .toInstant(ZoneOffset.UTC));
 
-        if (missionRepository.findByShortID(mission.getShortID()) == null) {
+        if (!missionRepository.findById(mission.getID()).isPresent()) {
             logger.error("Cannot find mission to register delete");
             return;
         }

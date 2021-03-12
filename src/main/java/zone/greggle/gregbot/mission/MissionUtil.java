@@ -92,7 +92,7 @@ public class MissionUtil {
 
         alertScheduler.unregisterAlert(mission);
         deleteScheduler.unregisterDelete(mission);
-        missionRepository.deleteByShortID(mission.getShortID());
+        missionRepository.deleteById(mission.getID());
         missionChannel.delete().queue();
         logger.info("Deleted " + mission.getName() + " #" + mission.getShortID());
     }

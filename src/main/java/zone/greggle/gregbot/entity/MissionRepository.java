@@ -1,5 +1,6 @@
 package zone.greggle.gregbot.entity;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -12,13 +13,9 @@ public interface MissionRepository extends MongoRepository<Mission, String> {
 
     Mission findMissionById(String id);
 
-    Mission findByShortID(String shortID);
-
     Mission findByMissionChannelID(long missionChannelID);
 
-    void deleteByShortID(String shortID);
-
-    void deleteById(String id);
+    void deleteById(@NotNull String id);
 
     List<Mission> findByPublishedIsFalseAndEditModeIsNot(EditMode editMode);
 
