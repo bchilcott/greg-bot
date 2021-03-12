@@ -134,6 +134,13 @@ public class GuildCommandListener extends ListenerAdapter {
                             success = false;
                         }
                         break;
+                    case IMAGE:
+                        if (event.getMessage().getAttachments().isEmpty()) {
+                            mission.setImage(event.getMessage().getContentRaw());
+                        } else {
+                            mission.setImage(event.getMessage().getAttachments().get(0).getProxyUrl());
+                        }
+                        break;
                     case ROLES:
                         mission.addRole(event.getMessage().getContentRaw());
                         missionRepository.save(mission);

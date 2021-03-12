@@ -64,9 +64,14 @@ public class MissionEditorUtil {
 
             case "U+1f4d6": // Summary
                 mission.setEditMode(EditMode.SUMMARY);
-                sendEditPrompt(":book:  Edit Mission Summary", "Type a new short summary for the mission." +
+                sendEditPrompt(":book:  Edit Mission Summary", "Type a new short summary for the mission. " +
                                 "More details can be sent to this channel once the mission is published:",
                         mission);
+                break;
+
+            case "U+1f5bc": // Image
+                mission.setEditMode(EditMode.IMAGE);
+                sendImageEditPrompt(mission);
                 break;
 
             case "U+2694": // Roles
@@ -115,12 +120,28 @@ public class MissionEditorUtil {
         TextChannel missionChannel = Objects.requireNonNull(guild.getTextChannelById(mission.getMissionChannelID()));
 
         EmbedBuilder eb = new EmbedBuilder()
-                .setTitle("Add Roles")
+                .setTitle(":crossed_swords: Add Roles")
                 .setDescription("Each message you send will be the name of a new role. Use :arrow_left: to" +
-                        " delete the last one on the list");
+                        " delete the last one on the list.");
         missionChannel.sendMessage(eb.build()).queue(m -> {
             m.addReaction("U+2B05").queue();
             m.addReaction("U+2705").queue();
+            mission.setLastPromptID(m.getIdLong());
+            missionRepository.save(mission);
+        });
+    }
+
+    private void sendImageEditPrompt(Mission mission) {
+        Guild guild = jdaContainer.getGuild();
+        assert guild != null;
+        TextChannel missionChannel = Objects.requireNonNull(guild.getTextChannelById(mission.getMissionChannelID()));
+
+        EmbedBuilder eb = new EmbedBuilder()
+                .setTitle(":frame_photo: Set Mission Thumbnail")
+                .setDescription("Send an image to display with this mission. Use :wastebasket: to remove the image.");
+        missionChannel.sendMessage(eb.build()).queue(m -> {
+            m.addReaction("U+1f5d1").queue();
+            m.addReaction("U+274c").queue();
             mission.setLastPromptID(m.getIdLong());
             missionRepository.save(mission);
         });

@@ -127,6 +127,7 @@ public class MissionSummaryUtil {
         eb.addField("Register Attendance",
                 optionsBuilder.toString(),
                 false);
+        if (mission.getImage() != null) eb.setImage(mission.getImage());
         eb.setFooter("GREG Bot by @Scythern#5601");
         return eb.build();
     }

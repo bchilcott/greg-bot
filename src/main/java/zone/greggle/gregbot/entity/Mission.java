@@ -19,6 +19,7 @@ public class Mission {
     public String name;
     public String location;
     public String summary;
+    public String image;
     public List<String> availableRoles;
     public LocalDateTime missionDate;
     public LocalDateTime dateCreated;
@@ -38,6 +39,7 @@ public class Mission {
         this.name = "Untitled Mission";
         this.location = "Not Specified";
         this.summary = "This mission has no summary.";
+        this.image = null;
         this.availableRoles = new ArrayList<>();
         this.missionDate = LocalDateTime.now().plusHours(1);
         this.dateCreated = LocalDateTime.now();
@@ -77,6 +79,13 @@ public class Mission {
     }
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public String getImage() {
+        return image;
+    }
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getLocation() {

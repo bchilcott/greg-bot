@@ -114,6 +114,22 @@ public class GuildReactionListener extends ListenerAdapter {
                 }
                 return;
             }
+
+//            Reactions on Image Editor
+            if (mission.getEditMode() == EditMode.IMAGE && event.getMessageIdLong() == mission.getLastPromptID()) {
+                switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
+                    case "U+1f5d1":
+                        mission.setImage(null);
+                        missionUtil.resetEditMode(mission);
+                        missionEditorCreator.updateEditorMessage(mission);
+                        break;
+
+                    case "U+274c":
+                        missionUtil.resetEditMode(mission);
+                        break;
+                }
+                return;
+            }
         }
 
 //        Reactions on a Mission Summary

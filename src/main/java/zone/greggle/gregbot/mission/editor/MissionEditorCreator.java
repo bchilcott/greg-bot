@@ -18,6 +18,7 @@ import zone.greggle.gregbot.mission.MissionUtil;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Objects;
 
@@ -46,10 +47,12 @@ public class MissionEditorCreator {
         Guild guild = jdaContainer.getGuild();
         assert guild != null;
 
-        TextChannel missionChannel = guild.createTextChannel(mission.name)
+        Collection<Permission> viewAndWrite = EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE);
+        TextChannel missionChannel = guild.createTextChannel(mission.getName())
                 .setParent(guild.getCategoryById(categoryID))
-                .addPermissionOverride(guild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL))
-                .addPermissionOverride(Objects.requireNonNull(guild.getRoleById(creatorRole)), EnumSet.of(Permission.VIEW_CHANNEL), null)
+                .addPermissionOverride(guild.getPublicRole(), null, viewAndWrite)
+                .addPermissionOverride(Objects.requireNonNull(guild.getRoleById(creatorRole)), viewAndWrite, null)
+                .setTopic("The mission info channel for " + mission.getName() + ".")
                 .complete();
         sendEditorMessage(mission, missionChannel);
     }
@@ -60,7 +63,7 @@ public class MissionEditorCreator {
         mission.setEditorMessageID(editor.getIdLong());
         mission.setMissionChannelID(editor.getTextChannel().getIdLong());
         missionRepository.save(mission);
-        logger.debug("Mission editor created");
+        logger.debug("Mission editor created with ID " + editor.getId());
     }
 
     private MessageEmbed createEditorEmbed(Mission mission) {
@@ -86,6 +89,7 @@ public class MissionEditorCreator {
                 "\n:date: Mission Date/Time" +
                 "\n:map: Location" +
                 "\n:book: Summary" +
+                "\n:frame_photo: Thumbnail" +
                 "\n:crossed_swords: Roles";
 
         String publishFields = ":x: Delete" +
@@ -94,6 +98,7 @@ public class MissionEditorCreator {
         eb.setDescription(description);
         eb.addField("Edit", editFields, true);
         eb.addField("Mission", publishFields, true);
+        eb.setImage(mission.getImage());
         eb.setFooter("GREG Bot by @Scythern#5601");
 
         return eb.build();
@@ -111,6 +116,7 @@ public class MissionEditorCreator {
         message.addReaction("U+1f4c6").queue(); // Date
         message.addReaction("U+1f5fa").queue(); // Map
         message.addReaction("U+1f4d6").queue(); // Book (open)
+        message.addReaction("U+1f5bc").queue(); // Photo Frame
         message.addReaction("U+2694").queue(); // Crossed Swords
         message.addReaction("U+274c").queue(); // Red Cross
         message.addReaction("U+2705").queue(); // Check Mark

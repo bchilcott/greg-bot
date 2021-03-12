@@ -60,7 +60,10 @@ public class MissionUtil {
         if (mission.getLastPromptID() != null && mission.getEditMode() != EditMode.NONE) { // If prompt is open
             missionChannel.retrieveMessageById(mission.getLastPromptID()).queue(m -> m.delete().queue());
         }
-        missionChannel.putPermissionOverride(guild.getPublicRole()).setAllow(Permission.VIEW_CHANNEL).queue();
+        missionChannel.putPermissionOverride(guild.getPublicRole())
+                .setAllow(Permission.VIEW_CHANNEL)
+                .setDeny(Permission.MESSAGE_WRITE)
+                .queue();
         missionSummaryUtil.sendSummary(mission);
         alertScheduler.registerNewAlert(mission);
         deleteScheduler.scheduleDelete(mission);
@@ -123,7 +126,7 @@ public class MissionUtil {
 
     private void sendPublishAlerts(Mission mission) {
         for (Subscriber subscriber : subscriberRepository.findAll()) {
-//            if (subscriber.getDiscordID().equals(mission.getHostID())) return;
+            if (subscriber.getDiscordID().equals(mission.getHostID())) return;
             jdaContainer.getGuild().retrieveMemberById(subscriber.getDiscordID()).queue(subMember -> {
                 if (subMember == null) {
                     subscriberRepository.deleteByDiscordID(subscriber.getDiscordID());

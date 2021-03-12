@@ -7,7 +7,8 @@ public enum EditMode {
     SUMMARY("SUMMARY"),
     LOCATION("LOCATION"),
     ROLES("ROLES"),
-    START_DATE("START_DATE");
+    START_DATE("START_DATE"),
+    IMAGE("IMAGE");
 
     EditMode(String s) {
     }
