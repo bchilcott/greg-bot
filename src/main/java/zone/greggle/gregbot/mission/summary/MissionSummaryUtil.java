@@ -5,12 +5,12 @@ import net.dv8tion.jda.api.entities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.JDAContainer;
 import zone.greggle.gregbot.entity.Mission;
 import zone.greggle.gregbot.entity.MissionMember;
 import zone.greggle.gregbot.entity.MissionRepository;
-import zone.greggle.gregbot.entity.SubscriberRepository;
 import zone.greggle.gregbot.mission.MissionUtil;
 import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
 
@@ -23,11 +23,11 @@ public class MissionSummaryUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(MissionSummaryUtil.class);
 
-    @Autowired
-    private JDAContainer jdaContainer;
+    @Value("${greg.config.credit-footer}")
+    private String creditFooter;
 
     @Autowired
-    private SubscriberRepository subscriberRepository;
+    private JDAContainer jdaContainer;
 
     @Autowired
     MissionRepository missionRepository;
@@ -75,7 +75,7 @@ public class MissionSummaryUtil {
 
                 eb.setTitle("Role Selection - " + mission.getName());
                 eb.setDescription(descBuilder.toString());
-                eb.setFooter("GREG Bot by Scythern#5601");
+                eb.setFooter(creditFooter);
                 dm.sendMessage(eb.build()).queue(message -> {
                         mission.setSelectingRole(applicant.getIdLong(), true);
                         missionRepository.save(mission);
@@ -128,7 +128,7 @@ public class MissionSummaryUtil {
                 optionsBuilder.toString(),
                 false);
         if (mission.getImage() != null) eb.setImage(mission.getImage());
-        eb.setFooter("GREG Bot by @Scythern#5601");
+        eb.setFooter(creditFooter);
         return eb.build();
     }
 

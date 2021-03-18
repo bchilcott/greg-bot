@@ -28,6 +28,9 @@ public class MissionManagerUtil {
     @Value("${mission.manager.channel}")
     String managerChannelID;
 
+    @Value("${greg.config.name}")
+    String botName;
+
     @Autowired
     BuildProperties buildProperties;
 
@@ -81,7 +84,7 @@ public class MissionManagerUtil {
                 "\n🔕 - Unsubscribe from Mission Alerts" +
                 "```"
         );
-        managerBuilder.setFooter("GREG Bot " + buildProperties.getVersion());
+        managerBuilder.setFooter(botName + " " + buildProperties.getVersion());
 
         return managerBuilder.build();
     }

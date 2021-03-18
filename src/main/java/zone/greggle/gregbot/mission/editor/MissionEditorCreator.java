@@ -42,6 +42,9 @@ public class MissionEditorCreator {
     @Value("${mission.creator.role}")
     private Long creatorRole;
 
+    @Value("${greg.config.credit-footer}")
+    private String creditFooter;
+
 
     public void createMissionEditor(Mission mission) {
         Guild guild = jdaContainer.getGuild();
@@ -99,7 +102,7 @@ public class MissionEditorCreator {
         eb.addField("Edit", editFields, true);
         eb.addField("Mission", publishFields, true);
         eb.setImage(mission.getImage());
-        eb.setFooter("GREG Bot by @Scythern#5601");
+        eb.setFooter(creditFooter);
 
         return eb.build();
     }
