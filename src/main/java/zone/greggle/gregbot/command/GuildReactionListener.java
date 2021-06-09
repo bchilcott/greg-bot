@@ -30,9 +30,6 @@ public class GuildReactionListener extends ListenerAdapter {
     @Value("${mission.manager.message}")
     String managerMessageID;
 
-    @Value("${mission.publish.category}")
-    String missionPublishCategoryID;
-
     @Value("${mission.creator.role}")
     String missionCreatorRoleID;
 

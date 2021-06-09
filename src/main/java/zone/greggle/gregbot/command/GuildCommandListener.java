@@ -1,5 +1,6 @@
 package zone.greggle.gregbot.command;
 
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -30,9 +31,6 @@ public class GuildCommandListener extends ListenerAdapter {
 
     @Value("${mission.setup.required}")
     private Boolean setupRequired;
-
-    @Value("${mission.publish.category}")
-    private String  missionPublishCategory;
 
     @Value("${mission.creator.role}")
     private String missionCreatorRoleID;
@@ -99,11 +97,13 @@ public class GuildCommandListener extends ListenerAdapter {
             missionManagerUtil.create(event.getGuild(), event.getChannel());
         }
 
-        if (Objects.requireNonNull(event.getChannel().getParent()).getId().equals(missionPublishCategory)) {
+        Role creatorRole = event.getJDA().getRoleById(missionCreatorRoleID);
+        List<Role> memberRoles = Objects.requireNonNull(event.getMember()).getRoles();
+
+        if (memberRoles.contains(creatorRole)) {
             List<Mission> unpublishedMissions = missionRepository.findByPublishedIsFalseAndEditModeIsNot(EditMode.NONE);
             for (Mission mission : unpublishedMissions) {
                 if (mission.getMissionChannelID() != event.getChannel().getIdLong()) break;
-                if (mission.getHostID() != Objects.requireNonNull(event.getMember()).getIdLong()) break;
                 boolean success = true;
 
                 switch (mission.getEditMode()) {
