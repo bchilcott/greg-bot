@@ -17,7 +17,7 @@ import zone.greggle.gregbot.mission.MissionUtil;
 import zone.greggle.gregbot.mission.editor.MissionEditorCreator;
 import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
 import zone.greggle.gregbot.mission.summary.MissionSummaryUtil;
-import zone.greggle.gregbot.scheduling.DeleteScheduler;
+import zone.greggle.gregbot.scheduling.MissionEndScheduler;
 
 import java.util.List;
 import java.util.Objects;
@@ -55,7 +55,7 @@ public class GuildReactionListener extends ListenerAdapter {
     MissionUtil missionUtil;
 
     @Autowired
-    DeleteScheduler deleteScheduler;
+    MissionEndScheduler missionEndScheduler;
 
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
@@ -151,7 +151,7 @@ public class GuildReactionListener extends ListenerAdapter {
                 if (Objects.requireNonNull(event.getMember()).getRoles().contains(creatorRole)) {
                     Mission mission = new Mission(event.getUser().getIdLong());
                     missionRepository.save(mission);
-                    deleteScheduler.scheduleDelete(mission);
+                    missionEndScheduler.scheduleDelete(mission);
                     missionEditorCreator.createMissionEditor(mission);
 
                     logger.info(String.format("%s created mission #%s", event.getUser().getName(), mission.getShortID()));

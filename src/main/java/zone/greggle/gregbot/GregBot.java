@@ -11,8 +11,9 @@ import zone.greggle.gregbot.command.DMMessageListener;
 import zone.greggle.gregbot.command.GuildCommandListener;
 import zone.greggle.gregbot.command.GuildReactionListener;
 import zone.greggle.gregbot.mission.MissionManagerUtil;
-import zone.greggle.gregbot.scheduling.AlertScheduler;
-import zone.greggle.gregbot.scheduling.DeleteScheduler;
+import zone.greggle.gregbot.scheduling.MissionAlertScheduler;
+import zone.greggle.gregbot.scheduling.MissionEndScheduler;
+import zone.greggle.gregbot.scheduling.MissionStartScheduler;
 
 @Component
 public class GregBot {
@@ -35,10 +36,13 @@ public class GregBot {
     DMMessageListener dmMessageListener;
 
     @Autowired
-    AlertScheduler alertScheduler;
+    MissionAlertScheduler missionAlertScheduler;
 
     @Autowired
-    DeleteScheduler deleteScheduler;
+    MissionEndScheduler missionEndScheduler;
+
+    @Autowired
+    MissionStartScheduler missionStartScheduler;
 
     @Autowired
     MissionManagerUtil missionManagerUtil;
@@ -54,8 +58,9 @@ public class GregBot {
             jdaContainer.setJDA(jda);
             logger.info("Connected to discord as " + jdaContainer.getJDA().getSelfUser().getName());
             missionManagerUtil.updateManagerMessage(jdaContainer.getGuild());
-            alertScheduler.registerStoredAlerts();
-            deleteScheduler.registerExistingDeletes();
+            missionAlertScheduler.registerStoredAlerts();
+            missionStartScheduler.registerExistingTasks();
+            missionEndScheduler.registerExistingDeletes();
         } catch (Exception e) {
             logger.error("Failed to connect to Discord: " + e.getMessage());
         }

@@ -3,11 +3,12 @@ package zone.greggle.gregbot.scheduling;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.entity.Mission;
 import zone.greggle.gregbot.entity.MissionRepository;
 import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
-import zone.greggle.gregbot.scheduling.task.DeleteTask;
+import zone.greggle.gregbot.scheduling.task.AlertTask;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -16,9 +17,12 @@ import java.util.List;
 import java.util.Timer;
 
 @Component
-public class DeleteScheduler {
+public class MissionAlertScheduler {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeleteScheduler.class);
+    private static final Logger logger = LoggerFactory.getLogger(MissionAlertScheduler.class);
+
+    @Value("${alert.warning.minutes}")
+    int warningMinutes;
 
     @Autowired
     MissionRepository missionRepository;
@@ -26,44 +30,43 @@ public class DeleteScheduler {
     @Autowired
     MissionEditorUtil missionEditorUtil;
 
-    List<DeleteTask> allTasks = new ArrayList<>();
+    List<AlertTask> allTasks = new ArrayList<>();
 
     Timer timer = new Timer();
 
-    public void registerExistingDeletes() {
+    public void registerStoredAlerts() {
+
         List<Mission> publishedMissions = missionRepository.findByPublishedIs(true);
-        logger.info("Registering all stored deletes");
+        logger.info("Registering all stored alerts");
         for (Mission mission: publishedMissions) {
-            scheduleDelete(mission);
+            registerNewAlert(mission);
         }
     }
 
-    public void scheduleDelete(Mission mission) {
-//        Date deleteTime = Date.from(mission.getDateCreated().plusSeconds(10)
-//                .toInstant(ZoneOffset.UTC));
-        Date deleteTime = Date.from(mission.getMissionDate().plusHours(8)
+    public void registerNewAlert(Mission mission) {
+        Date alertTime = Date.from(mission.getMissionDate().minusMinutes(warningMinutes)
                 .toInstant(ZoneOffset.UTC));
 
         if (!missionRepository.findById(mission.getID()).isPresent()) {
-            logger.error("Cannot find mission to register delete");
+            logger.error("Cannot find mission to register alert");
             return;
         }
 
-        unregisterDelete(mission);
+        unregisterAlert(mission);
 
-        if (!deleteTime.before(new Date())) {
-            DeleteTask task = new DeleteTask(mission.getID());
-            timer.schedule(task, deleteTime);
+        if (!alertTime.before(new Date())) {
+            AlertTask task = new AlertTask(mission.getID(), warningMinutes);
+            timer.schedule(task, alertTime);
             allTasks.add(task);
-            logger.debug("Set delete time for mission #" + mission.getShortID() + " to " + deleteTime.toString());
+            logger.debug("Set alert for mission #" + mission.getShortID() + " at " + alertTime.toString());
         } else {
-            logger.warn("Specified delete time is in the past (#" + mission.getShortID() + ")");
+            logger.warn("Specified alert time is in the past (#" + mission.getShortID() + ")");
         }
     }
 
-    public void unregisterDelete(Mission mission) {
+    public void unregisterAlert(Mission mission) {
         for (int i = allTasks.size() - 1; i >= 0; i--) {
-            DeleteTask existingTask = allTasks.get(i);
+            AlertTask existingTask = allTasks.get(i);
             if (existingTask.getMissionID().equals(mission.getID())) {
                 existingTask.cancel();
                 allTasks.remove(i);

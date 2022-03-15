@@ -1,8 +1,10 @@
 package zone.greggle.gregbot.mission;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.managers.Presence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +18,9 @@ import zone.greggle.gregbot.entity.SubscriberRepository;
 import zone.greggle.gregbot.mission.editor.MissionEditorCreator;
 import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
 import zone.greggle.gregbot.mission.summary.MissionSummaryUtil;
-import zone.greggle.gregbot.scheduling.AlertScheduler;
-import zone.greggle.gregbot.scheduling.DeleteScheduler;
+import zone.greggle.gregbot.scheduling.MissionAlertScheduler;
+import zone.greggle.gregbot.scheduling.MissionEndScheduler;
+import zone.greggle.gregbot.scheduling.MissionStartScheduler;
 
 import java.util.Objects;
 
@@ -33,7 +36,7 @@ public class MissionUtil {
     MissionSummaryUtil missionSummaryUtil;
 
     @Autowired
-    AlertScheduler alertScheduler;
+    MissionAlertScheduler missionAlertScheduler;
 
     @Autowired
     MissionRepository missionRepository;
@@ -48,7 +51,10 @@ public class MissionUtil {
     SubscriberRepository subscriberRepository;
 
     @Autowired
-    DeleteScheduler deleteScheduler;
+    MissionEndScheduler missionEndScheduler;
+
+    @Autowired
+    MissionStartScheduler missionStartScheduler;
 
     public void publishMission(Mission mission) {
         Guild guild = jdaContainer.getGuild();
@@ -65,8 +71,9 @@ public class MissionUtil {
                 .setDeny(Permission.MESSAGE_WRITE)
                 .queue();
         missionSummaryUtil.sendSummary(mission);
-        alertScheduler.registerNewAlert(mission);
-        deleteScheduler.scheduleDelete(mission);
+        missionAlertScheduler.registerNewAlert(mission);
+        missionStartScheduler.schedulePresence(mission);
+        missionEndScheduler.scheduleDelete(mission);
 
         mission.setEditMode(EditMode.NONE);
         if (!mission.wasPreviouslyPublished()) sendPublishAlerts(mission);
@@ -86,14 +93,17 @@ public class MissionUtil {
 
     public void deleteMission(Mission mission) {
         Guild guild = jdaContainer.getGuild();
+        Presence presence = jdaContainer.getJDA().getPresence();
         assert guild != null;
 
         TextChannel missionChannel = Objects.requireNonNull(guild.getTextChannelById(mission.getMissionChannelID()));
 
-        alertScheduler.unregisterAlert(mission);
-        deleteScheduler.unregisterDelete(mission);
+        missionAlertScheduler.unregisterAlert(mission);
+        missionEndScheduler.unregisterDelete(mission);
+        missionStartScheduler.unregisterTask(mission);
         missionRepository.deleteById(mission.getID());
         missionChannel.delete().queue();
+        presence.setActivity(null);
         logger.info("Deleted " + mission.getName() + " #" + mission.getShortID());
     }
 
@@ -107,7 +117,6 @@ public class MissionUtil {
         TextChannel missionChannel = Objects.requireNonNull(guild.getTextChannelById(mission.getMissionChannelID()));
         missionChannel.retrieveMessageById(mission.getSummaryMessageID()).queue(m -> m.delete().queue());
         missionEditorCreator.sendEditorMessage(mission, missionChannel);
-//        missionEditorCreator.updateEditorMessage(mission);
         logger.info("Editing " + mission.getName() + " #" + mission.getShortID());
     }
 
