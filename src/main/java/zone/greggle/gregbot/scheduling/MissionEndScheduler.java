@@ -3,6 +3,7 @@ package zone.greggle.gregbot.scheduling;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.entity.Mission;
 import zone.greggle.gregbot.entity.MissionRepository;
@@ -19,6 +20,9 @@ import java.util.Timer;
 public class MissionEndScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(MissionEndScheduler.class);
+
+    @Value("${delete.time.hours}")
+    int deleteHours;
 
     @Autowired
     MissionRepository missionRepository;
@@ -39,9 +43,7 @@ public class MissionEndScheduler {
     }
 
     public void scheduleDelete(Mission mission) {
-//        Date deleteTime = Date.from(mission.getDateCreated().plusSeconds(10)
-//                .toInstant(ZoneOffset.UTC));
-        Date deleteTime = Date.from(mission.getMissionDate().plusHours(8)
+        Date deleteTime = Date.from(mission.getMissionDate().plusHours(deleteHours)
                 .toInstant(ZoneOffset.UTC));
 
         if (!missionRepository.findById(mission.getID()).isPresent()) {

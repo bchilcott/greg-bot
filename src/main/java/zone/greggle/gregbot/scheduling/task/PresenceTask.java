@@ -34,7 +34,7 @@ public class PresenceTask extends TimerTask {
 
         if (mission == null) return;
         logger.debug("Setting presence for mission: " + mission.getName());
-        presence.setActivity(Activity.playing(mission.getName()).asRichPresence());
+        presence.setActivity(Activity.playing(mission.getName()));
 
     }
 
