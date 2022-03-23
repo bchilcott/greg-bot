@@ -67,19 +67,18 @@ public class MissionSummaryUtil {
         if (registeredMember != null) {
             applicant.getUser().openPrivateChannel().queue(dm -> {
                 EmbedBuilder eb = new EmbedBuilder();
-                StringBuilder descBuilder = new StringBuilder();
-                descBuilder.append("Type the name of a role from the list below:");
-                descBuilder.append("```");
-                descBuilder.append(missionUtil.buildRolesString(mission));
-                descBuilder.append("```");
+                String desc = "Type the name of a role from the list below:" +
+                        "```" +
+                        missionUtil.buildRolesString(mission) +
+                        "```";
 
                 eb.setTitle("Role Selection - " + mission.getName());
-                eb.setDescription(descBuilder.toString());
+                eb.setDescription(desc);
                 eb.setFooter(creditFooter);
                 dm.sendMessage(eb.build()).queue(message -> {
                         mission.setSelectingRole(applicant.getIdLong(), true);
                         missionRepository.save(mission);
-                        logger.info("Sent role selector to " + applicant.getUser().getName());
+                        logger.debug("Sent role selector to " + applicant.getUser().getName());
                 });
             });
         }
@@ -108,7 +107,7 @@ public class MissionSummaryUtil {
         }
 
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle(mission.getName() + " (#" + mission.getShortID() + ")");
+        eb.setTitle(mission.getName());
         eb.appendDescription("Created by " + guild.retrieveMemberById(mission.getHostID()).complete().getAsMention());
         eb.appendDescription("```" +
                 String.format("\nMission Name: %s", mission.getName()) +
@@ -116,7 +115,7 @@ public class MissionSummaryUtil {
                 String.format("\nLocation: %s", mission.getLocation()) +
                 "\n\nMission Summary:" +
                 String.format("\n%s", mission.getSummary()) + "\n\n" +
-                mList.toString() +
+                mList +
                 "```" );
 
         StringBuilder optionsBuilder = new StringBuilder();

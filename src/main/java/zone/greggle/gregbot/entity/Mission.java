@@ -1,6 +1,5 @@
 package zone.greggle.gregbot.entity;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import zone.greggle.gregbot.data.EditMode;
@@ -15,7 +14,6 @@ public class Mission {
     @Id
     public String id;
     public Long hostID;
-    public String shortID;
     public String name;
     public String location;
     public String summary;
@@ -35,7 +33,6 @@ public class Mission {
     public Mission(Long hostID) {
 
         this.hostID = hostID;
-        this.shortID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
         this.name = "Untitled Mission";
         this.location = "Not Specified";
         this.summary = "This mission has no summary.";
@@ -61,10 +58,6 @@ public class Mission {
 
     public Long getHostID() {
         return hostID;
-    }
-
-    public String getShortID() {
-        return shortID;
     }
 
     public String getName() {
@@ -110,10 +103,6 @@ public class Mission {
     }
     public void setMissionDate(LocalDateTime missionDate) {
         this.missionDate = missionDate;
-    }
-
-    public LocalDateTime getDateCreated() {
-        return dateCreated;
     }
 
     public List<MissionMember> getMembers() {

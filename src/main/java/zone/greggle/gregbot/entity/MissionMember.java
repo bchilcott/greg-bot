@@ -15,9 +15,6 @@ public class MissionMember {
     public Long getDiscordID() {
         return discordID;
     }
-    public void setDiscordID(Long discordID) {
-        this.discordID = discordID;
-    }
 
     public String getMissionRole() {
         return missionRole;

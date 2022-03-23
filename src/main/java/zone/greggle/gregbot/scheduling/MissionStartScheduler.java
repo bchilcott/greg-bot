@@ -51,9 +51,9 @@ public class MissionStartScheduler {
             PresenceTask task = new PresenceTask(mission.getID());
             timer.schedule(task, missionTime);
             allTasks.add(task);
-            logger.debug("Set presence time for mission #" + mission.getShortID() + " to " + missionTime.toString());
+            logger.debug("Set presence time for " + mission.getName() + " to " + missionTime);
         } else {
-            logger.warn("Specified presence time is in the past (#" + mission.getShortID() + ")");
+            logger.warn("Specified presence time is in the past: " + mission.getName());
         }
     }
 

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import zone.greggle.gregbot.entity.Mission;
 import zone.greggle.gregbot.entity.MissionRepository;
+import zone.greggle.gregbot.mission.MissionUtil;
 import zone.greggle.gregbot.mission.editor.MissionEditorUtil;
 import zone.greggle.gregbot.scheduling.task.DeleteTask;
 
@@ -29,6 +30,9 @@ public class MissionEndScheduler {
 
     @Autowired
     MissionEditorUtil missionEditorUtil;
+
+    @Autowired
+    MissionUtil missionUtil;
 
     List<DeleteTask> allTasks = new ArrayList<>();
 
@@ -57,9 +61,14 @@ public class MissionEndScheduler {
             DeleteTask task = new DeleteTask(mission.getID());
             timer.schedule(task, deleteTime);
             allTasks.add(task);
-            logger.debug("Set delete time for mission #" + mission.getShortID() + " to " + deleteTime.toString());
+            logger.debug("Set delete time for " + mission.getName() + " to " + deleteTime);
         } else {
-            logger.warn("Specified delete time is in the past (#" + mission.getShortID() + ")");
+            try {
+                logger.info("Deleting mission that has already ended: " + mission.getName());
+                missionUtil.deleteMission(mission);
+            } catch (NullPointerException e) {
+                logger.error("Attempted to delete a deleted mission");
+            }
         }
     }
 

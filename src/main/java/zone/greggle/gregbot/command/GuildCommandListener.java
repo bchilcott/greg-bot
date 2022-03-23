@@ -5,8 +5,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,8 +24,6 @@ import java.util.Objects;
 
 @Component
 public class GuildCommandListener extends ListenerAdapter {
-
-    private static final Logger logger = LoggerFactory.getLogger(GuildCommandListener.class);
 
     @Value("${mission.setup.required}")
     private Boolean setupRequired;
@@ -85,7 +81,7 @@ public class GuildCommandListener extends ListenerAdapter {
                         "This mission is already in edit mode!",
                         channel);
                 return;
-            };
+            }
 
             missionUtil.editMission(mission);
             return;
@@ -151,7 +147,7 @@ public class GuildCommandListener extends ListenerAdapter {
                 if (success && mission.getEditMode() != EditMode.ROLES) {
                     missionUtil.resetEditMode(mission);
                     missionEditorCreator.updateEditorMessage(mission);
-                };
+                }
             }
         }
     }

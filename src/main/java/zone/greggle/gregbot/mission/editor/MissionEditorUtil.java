@@ -90,14 +90,14 @@ public class MissionEditorUtil {
                 } catch (Exception e) {
                     sendErrorMessage("Error Publishing Mission",
                             "```" + e.getMessage() + "```", missionChannel);
-                    logger.error("Error publishing mission #" + mission.getShortID(), e);
+                    logger.error("Error publishing mission: " + mission.getName(), e);
                 }
                 break;
         }
 
         if (!deleted) {
             missionRepository.save(mission);
-            logger.debug(String.format("Edit mode set to %s on mission #%s", mission.getEditMode().name(), mission.getShortID()));
+            logger.debug(String.format("Edit mode set to %s: %s", mission.getEditMode().name(), mission.getName()));
         }
     }
 

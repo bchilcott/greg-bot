@@ -154,7 +154,7 @@ public class GuildReactionListener extends ListenerAdapter {
                     missionEndScheduler.scheduleDelete(mission);
                     missionEditorCreator.createMissionEditor(mission);
 
-                    logger.info(String.format("%s created mission #%s", event.getUser().getName(), mission.getShortID()));
+                    logger.info(String.format("%s created mission: %s", event.getUser().getName(), mission.getName()));
                 } else {
                     missionEditorUtil.sendErrorMessage("Invalid Permissions",
                             "You need the Mission Creator role to do this!",
@@ -197,16 +197,16 @@ public class GuildReactionListener extends ListenerAdapter {
                 mission.addMember(new MissionMember(event.getUserIdLong()));
                 missionRepository.save(mission);
                 missionSummaryUtil.updateSummary(mission);
-                logger.info(String.format("%s registered for mission #%s",
-                        Objects.requireNonNull(event.getUser()).getName(), mission.getShortID()));
+                logger.info(String.format("%s registered attendance: %s",
+                        Objects.requireNonNull(event.getUser()).getName(), mission.getName()));
                 break;
 
             case "U+274c": // Cross - unregister user
                 mission.removeMember(mission.getMemberByID(event.getUserIdLong()));
                 missionRepository.save(mission);
                 missionSummaryUtil.updateSummary(mission);
-                logger.info(String.format("%s unregistered for mission #%s",
-                        Objects.requireNonNull(event.getUser()).getName(), mission.getShortID()));
+                logger.info(String.format("%s unregistered attendance: %s",
+                        Objects.requireNonNull(event.getUser()).getName(), mission.getName()));
                 break;
 
             case "U+2694": // Crossed Swords - Select Role

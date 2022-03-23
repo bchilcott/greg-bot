@@ -75,7 +75,7 @@ public class MissionEditorCreator {
 
         EmbedBuilder eb = new EmbedBuilder();
 
-        eb.setTitle(mission.getName() + " (#" + mission.getShortID() + ")");
+        eb.setTitle(mission.getName());
 
         String description = "Created by " + guild.retrieveMemberById(mission.getHostID()).complete().getAsMention() +
                 "\nUse the reactions below to change mission settings:" +

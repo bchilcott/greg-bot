@@ -1,7 +1,6 @@
 package zone.greggle.gregbot.mission;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.managers.Presence;
@@ -79,7 +78,7 @@ public class MissionUtil {
         if (!mission.wasPreviouslyPublished()) sendPublishAlerts(mission);
 
         mission.setPublished(true);
-        logger.info("Published " + mission.getName() + " #" + mission.getShortID());
+        logger.info("Published mission: " + mission.getName());
     }
 
     public void resetEditMode(Mission mission) {
@@ -104,7 +103,7 @@ public class MissionUtil {
         missionRepository.deleteById(mission.getID());
         missionChannel.delete().queue();
         presence.setActivity(null);
-        logger.info("Deleted " + mission.getName() + " #" + mission.getShortID());
+        logger.info("Deleted mission: " + mission.getName());
     }
 
     public void editMission(Mission mission) {
@@ -117,7 +116,7 @@ public class MissionUtil {
         TextChannel missionChannel = Objects.requireNonNull(guild.getTextChannelById(mission.getMissionChannelID()));
         missionChannel.retrieveMessageById(mission.getSummaryMessageID()).queue(m -> m.delete().queue());
         missionEditorCreator.sendEditorMessage(mission, missionChannel);
-        logger.info("Editing " + mission.getName() + " #" + mission.getShortID());
+        logger.info("Editing mission: " + mission.getName());
     }
 
     public String buildRolesString(Mission mission) {

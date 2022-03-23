@@ -20,8 +20,6 @@ public class MissionManagerUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(MissionManagerUtil.class);
 
-    public TextChannel replyChannel;
-
     @Value("${mission.manager.message}")
     String managerMessageID;
 
@@ -38,8 +36,6 @@ public class MissionManagerUtil {
     JDAContainer jdaContainer;
 
     public void create(Guild guild, TextChannel replyChannel) {
-        this.replyChannel = replyChannel;
-
         Role creatorRole = guild.createRole().setName("Mission Creator").complete();
         TextChannel managerChannel = createManagerChannel(guild);
         Category missionCategory = guild.createCategory("Missions").setPosition(999).complete();

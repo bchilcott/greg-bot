@@ -33,7 +33,7 @@ public class DMMessageListener extends ListenerAdapter {
                         event.getChannel().sendMessage("Successfully selected role: " + roleName).queue();
                         missionRepository.save(mission);
                         missionSummaryUtil.updateSummary(mission);
-                        logger.info(event.getAuthor().getName() + " selected role: " + roleName);
+                        logger.debug(event.getAuthor().getName() + " selected role: " + roleName);
                         return;
                     }
                 }
