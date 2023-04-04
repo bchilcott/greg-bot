@@ -4,7 +4,7 @@ dedicated text channels for individual missions, and send alerts when a mission 
 about to begin. It's written (really poorly) using Spring Boot, and JDA.
 
 ## Setup
-The bot requires 3 environment variables to be set in order to run (or this can be done in an application.yml/properties:
+The bot requires 3 environment variables to be set in order to run (or this can be done in an application.yml/properties):
 ```
 GREG_TOKEN= Discord bot token
 GREG_DB_URI= Mongo Atlas URI
